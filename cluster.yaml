@@ -1,0 +1,97 @@
+version: "3.8"
+
+services:
+  kafka-server-0:
+    image: bitnami/kafka:3.7
+    container_name: kafka-server-0
+    ports:
+      - "9000:9094"
+    environment:
+      - KAFKA_KRAFT_CLUSTER_ID=OUUzN0M5ODQtMUFDMS00QkJCLTgxMjAtRjM2MDg5NTc1ODY2Cg
+      - KAFKA_CFG_NODE_ID=0
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-server-0:9093,1@kafka-server-1:9093,2@kafka-server-2:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server-0:9092,EXTERNAL://localhost:9000
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
+    volumes:
+      - kafka_0_data:/bitnami/kafka
+    networks:
+      - kafka
+  kafka-server-1:
+    image: bitnami/kafka:3.7
+    container_name: kafka-server-1
+    ports:
+      - "9001:9094"
+    environment:
+      - KAFKA_KRAFT_CLUSTER_ID=OUUzN0M5ODQtMUFDMS00QkJCLTgxMjAtRjM2MDg5NTc1ODY2Cg
+      - KAFKA_CFG_NODE_ID=1
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-server-0:9093,1@kafka-server-1:9093,2@kafka-server-2:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server-1:9092,EXTERNAL://localhost:9001
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
+    volumes:
+      - kafka_1_data:/bitnami/kafka
+    networks:
+      - kafka
+  kafka-server-2:
+    image: bitnami/kafka:3.7
+    container_name: kafka-server-2
+    ports:
+      - "9002:9094"
+    environment:
+      - KAFKA_KRAFT_CLUSTER_ID=OUUzN0M5ODQtMUFDMS00QkJCLTgxMjAtRjM2MDg5NTc1ODY2Cg
+      - KAFKA_CFG_NODE_ID=2
+      - KAFKA_CFG_PROCESS_ROLES=controller,broker
+      - KAFKA_CFG_CONTROLLER_QUORUM_VOTERS=0@kafka-server-0:9093,1@kafka-server-1:9093,2@kafka-server-2:9093
+      - KAFKA_CFG_LISTENERS=PLAINTEXT://:9092,CONTROLLER://:9093,EXTERNAL://:9094
+      - KAFKA_CFG_ADVERTISED_LISTENERS=PLAINTEXT://kafka-server-2:9092,EXTERNAL://localhost:9001
+      - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      - KAFKA_CFG_CONTROLLER_LISTENER_NAMES=CONTROLLER
+      - KAFKA_CFG_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_CFG_OFFSETS_TOPIC_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=3
+      - KAFKA_CFG_TRANSACTION_STATE_LOG_MIN_ISR=2
+    volumes:
+      - kafka_2_data:/bitnami/kafka
+    networks:
+      - kafka
+  kafka-ui:
+    image: ghcr.io/kafbat/kafka-ui:4a3c424b5865ebe86ac001379c0b43d20bcf9da6
+    container_name: kafka-ui
+    ports:
+      - "8080:8080"
+    depends_on:
+      - kafka-server-0
+      - kafka-server-1
+      - kafka-server-2
+    environment:
+      - DYNAMIC_CONFIG_ENABLED=true
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka-server-0:9092,kafka-server-1:9092,kafka-server-2:9092
+      - KAFKA_CLUSTERS_0_AUDIT_TOPICAUDITENABLED=true
+      - KAFKA_CLUSTERS_0_AUDIT_CONSOLEAUDITENABLED=true
+    networks:
+      - kafka
+
+volumes:
+  kafka_0_data:
+    driver: local
+  kafka_1_data:
+    driver: local
+  kafka_2_data:
+    driver: local
+
+networks:
+  kafka:
